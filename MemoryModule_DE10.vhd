@@ -1,0 +1,117 @@
+-- Copyright (C) 2020  Intel Corporation. All rights reserved.
+-- Your use of Intel Corporation's design tools, logic functions 
+-- and other software and tools, and any partner logic 
+-- functions, and any output files from any of the foregoing 
+-- (including device programming or simulation files), and any 
+-- associated documentation or information are expressly subject 
+-- to the terms and conditions of the Intel Program License 
+-- Subscription Agreement, the Intel Quartus Prime License Agreement,
+-- the Intel FPGA IP License Agreement, or other applicable license
+-- agreement, including, without limitation, that your use is for
+-- the sole purpose of programming logic devices manufactured by
+-- Intel and sold by Intel or its authorized distributors.  Please
+-- refer to the applicable agreement for further details, at
+-- https://fpgasoftware.intel.com/eula.
+
+-- PROGRAM		"Quartus Prime"
+-- VERSION		"Version 20.1.1 Build 720 11/11/2020 SJ Lite Edition"
+-- CREATED		"Sun Nov 01 14:50:50 2026"
+
+LIBRARY ieee;
+USE ieee.std_logic_1164.all; 
+
+LIBRARY work;
+
+ENTITY MemoryModule_DE10 IS 
+	PORT
+	(
+		KEY :  IN  STD_LOGIC_VECTOR(0 TO 0);
+		SW :  IN  STD_LOGIC_VECTOR(9 DOWNTO 0);
+		HEX0 :  OUT  STD_LOGIC_VECTOR(6 DOWNTO 0);
+		HEX2 :  OUT  STD_LOGIC_VECTOR(6 DOWNTO 0);
+		HEX4 :  OUT  STD_LOGIC_VECTOR(6 DOWNTO 0);
+		HEX5 :  OUT  STD_LOGIC_VECTOR(6 DOWNTO 0)
+	);
+END MemoryModule_DE10;
+
+ARCHITECTURE bdf_type OF MemoryModule_DE10 IS 
+
+COMPONENT dec_7seg
+	PORT(hex_digit : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
+		 segment_a : OUT STD_LOGIC;
+		 segment_b : OUT STD_LOGIC;
+		 segment_c : OUT STD_LOGIC;
+		 segment_d : OUT STD_LOGIC;
+		 segment_e : OUT STD_LOGIC;
+		 segment_f : OUT STD_LOGIC;
+		 segment_g : OUT STD_LOGIC
+	);
+END COMPONENT;
+
+COMPONENT ram32x4
+	PORT(wren : IN STD_LOGIC;
+		 clock : IN STD_LOGIC;
+		 address : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
+		 data : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
+		 q : OUT STD_LOGIC_VECTOR(3 DOWNTO 0)
+	);
+END COMPONENT;
+
+SIGNAL	SYNTHESIZED_WIRE_0 :  STD_LOGIC_VECTOR(3 DOWNTO 0);
+
+
+BEGIN 
+
+
+b2v_addressin_hex5 : dec_7seg
+PORT MAP(hex_digit => "000" & SW(8),
+		 segment_a => HEX5(0),
+		 segment_b => HEX5(1),
+		 segment_c => HEX5(2),
+		 segment_d => HEX5(3),
+		 segment_e => HEX5(4),
+		 segment_f => HEX5(5),
+		 segment_g => HEX5(6));
+
+
+b2v_addressin_hex4 : dec_7seg
+PORT MAP(hex_digit => SW(7 DOWNTO 4),
+		 segment_a => HEX4(0),
+		 segment_b => HEX4(1),
+		 segment_c => HEX4(2),
+		 segment_d => HEX4(3),
+		 segment_e => HEX4(4),
+		 segment_f => HEX4(5),
+		 segment_g => HEX4(6));
+
+
+b2v_datain_hex2 : dec_7seg
+PORT MAP(hex_digit => SW(3 DOWNTO 0),
+		 segment_a => HEX2(0),
+		 segment_b => HEX2(1),
+		 segment_c => HEX2(2),
+		 segment_d => HEX2(3),
+		 segment_e => HEX2(4),
+		 segment_f => HEX2(5),
+		 segment_g => HEX2(6));
+
+b2v_dataout_hex0 : dec_7seg
+PORT MAP(hex_digit => SYNTHESIZED_WIRE_0,
+		 segment_a => HEX0(0),
+		 segment_b => HEX0(1),
+		 segment_c => HEX0(2),
+		 segment_d => HEX0(3),
+		 segment_e => HEX0(4),
+		 segment_f => HEX0(5),
+		 segment_g => HEX0(6));
+
+
+b2v_de10_ram32x4_inst : ram32x4
+PORT MAP(wren => SW(9),
+		 clock => KEY(0),
+		 address => SW(8 DOWNTO 4),
+		 data => SW(3 DOWNTO 0),
+		 q => SYNTHESIZED_WIRE_0);
+
+
+END bdf_type;
